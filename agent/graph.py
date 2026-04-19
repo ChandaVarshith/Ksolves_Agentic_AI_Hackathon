@@ -20,10 +20,12 @@ tools = [
     check_refund_eligibility, issue_refund, send_reply, escalate
 ]
 
-# Configure LLM (User will provide OPENAI_API_KEY or configure litellm proxy in .env)
-# Temperature 0.0 for deterministic reasoning
-llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.0)
-llm_with_tools = llm.bind_tools(tools)
+# Configure LLM dynamically at runtime to prevent import crashes
+def get_llm():
+    return ChatOpenAI(model="gpt-4o-mini", temperature=0.0)
+
+def get_llm_with_tools():
+    return get_llm().bind_tools(tools)
 
 SYSTEM_PROMPT = """You are ShopWave's elite fully autonomous AI Customer Support Agent.
 Your objective is to resolve customer support tickets autonomously by using the provided tools.
@@ -64,7 +66,8 @@ def agent_node(state: AgentState):
         prompt = f"TICKET ID: {state['ticket_id']}\nCUSTOMER EMAIL: {state['customer_email']}\nSUBJECT: {state['ticket_subject']}\nBODY: {state['ticket_body']}"
         messages = [SystemMessage(content=SYSTEM_PROMPT), HumanMessage(content=prompt)]
         
-    response = llm_with_tools.invoke(messages)
+    llm_w_tools = get_llm_with_tools()
+    response = llm_w_tools.invoke(messages)
     
     # Record generated tool calls to audit log
     for tool_call in response.tool_calls:
