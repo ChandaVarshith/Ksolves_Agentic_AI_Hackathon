@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ShopWave Agent Audit Dashboard</title>
+    <style>
+        body { font-family: -apple-system, system-ui, sans-serif; background: #0d1117; color: #c9d1d9; padding: 2em; }
+        h1 { color: #58a6ff; }
+        .metrics { display: flex; gap: 20px; }
+        .card { background: #161b22; padding: 20px; border-radius: 8px; border: 1px solid #30363d; flex: 1; text-align: center; }
+        .card h2 { font-size: 3em; margin: 0; }
+        .resolved h2 { color: #238636; }
+        .escalated h2 { color: #d29922; }
+        .dlq h2 { color: #da3633; }
+        table { width: 100%; border-collapse: collapse; margin-top: 2em; }
+        th, td { border: 1px solid #30363d; padding: 12px; text-align: left; }
+        th { background: #21262d; }
+    </style>
+</head>
+<body>
+    <h1>ShopWave Autonomous Support Agent Metrics</h1>
+    <div class="metrics">
+        <div class="card resolved">
+            <h2>15</h2>
+            <p>Tickets Resolved Autonomously</p>
+        </div>
+        <div class="card escalated">
+            <h2>4</h2>
+            <p>Tickets Escalated Safely</p>
+        </div>
+        <div class="card dlq">
+            <h2>1</h2>
+            <p>Failure Cases Isolated (DLQ)</p>
+        </div>
+    </div>
+    
+    <h2>Ticket Audit Log</h2>
+    <table>
+        <tr>
+            <th>Ticket ID</th>
+            <th>Decision Finalised</th>
+            <th>Reasoning Steps Taken</th>
+            <th>Tools Utilised</th>
+        </tr>
+        <tr>
+            <td>TKT-001</td>
+            <td>resolved</td>
+            <td>3</td>
+            <td>issue_refund, get_customer, search_knowledge_base</td>
+        </tr>
+        <tr>
+            <td>TKT-002</td>
+            <td>resolved</td>
+            <td>3</td>
+            <td>issue_refund, get_customer, search_knowledge_base</td>
+        </tr>
+        <tr>
+            <td>TKT-003</td>
+            <td>escalated</td>
+            <td>4</td>
+            <td>escalate, get_customer, search_knowledge_base</td>
+        </tr>
+        <tr>
+            <td>TKT-004</td>
+            <td>resolved</td>
+            <td>3</td>
+            <td>issue_refund, get_customer, search_knowledge_base</td>
+        </tr>
+        <tr>
+            <td>TKT-005</td>
+            <td>resolved</td>
+            <td>3</td>
+            <td>issue_refund, get_customer, search_knowledge_base</td>
+        </tr>
+        <tr>
+            <td>TKT-006</td>
+            <td>resolved</td>
+            <td>3</td>
+            <td>issue_refund, get_customer, search_knowledge_base</td>
+        </tr>
+        <tr>
+            <td>TKT-007</td>
+            <td>resolved</td>
+            <td>3</td>
+            <td>issue_refund, get_customer, search_knowledge_base</td>
+        </tr>
+        <tr>
+            <td>TKT-008</td>
+            <td>resolved</td>
+            <td>3</td>
+            <td>issue_refund, get_customer, search_knowledge_base</td>
+        </tr>
+        <tr>
+            <td>TKT-009</td>
+            <td>resolved</td>
+            <td>3</td>
+            <td>issue_refund, get_customer, search_knowledge_base</td>
+        </tr>
+        <tr>
+            <td>TKT-010</td>
+            <td>resolved</td>
+            <td>3</td>
+            <td>issue_refund, get_customer, search_knowledge_base</td>
+        </tr>
+        <tr>
+            <td>TKT-011</td>
+            <td>escalated</td>
+            <td>4</td>
+            <td>escalate, get_customer, search_knowledge_base</td>
+        </tr>
+        <tr>
+            <td>TKT-012</td>
+            <td>resolved</td>
+            <td>3</td>
+            <td>issue_refund, get_customer, search_knowledge_base</td>
+        </tr>
+        <tr>
+            <td>TKT-013</td>
+            <td>resolved</td>
+            <td>3</td>
+            <td>issue_refund, get_customer, search_knowledge_base</td>
+        </tr>
+        <tr>
+            <td>TKT-014</td>
+            <td>resolved</td>
+            <td>3</td>
+            <td>issue_refund, get_customer, search_knowledge_base</td>
+        </tr>
+        <tr>
+            <td>TKT-015</td>
+            <td>escalated</td>
+            <td>4</td>
+            <td>escalate, get_customer, search_knowledge_base</td>
+        </tr>
+        <tr>
+            <td>TKT-016</td>
+            <td>resolved</td>
+            <td>3</td>
+            <td>issue_refund, get_customer, search_knowledge_base</td>
+        </tr>
+        <tr>
+            <td>TKT-017</td>
+            <td>escalated</td>
+            <td>4</td>
+            <td>escalate, get_customer, search_knowledge_base</td>
+        </tr>
+        <tr>
+            <td>TKT-018</td>
+            <td>resolved</td>
+            <td>3</td>
+            <td>issue_refund, get_customer, search_knowledge_base</td>
+        </tr>
+        <tr>
+            <td>TKT-019</td>
+            <td>resolved</td>
+            <td>3</td>
+            <td>issue_refund, get_customer, search_knowledge_base</td>
+        </tr>
+        <tr>
+            <td>TKT-020</td>
+            <td>dlq</td>
+            <td>11</td>
+            <td>escalate, get_customer, search_knowledge_base</td>
+        </tr>
+    </table>
+</body>
+</html>

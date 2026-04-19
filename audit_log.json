@@ -1,0 +1,538 @@
+[
+    {
+        "ticket_id": "TKT-001",
+        "decision": "resolved",
+        "iterations": 3,
+        "audit_trail": [
+            {
+                "step": 1,
+                "tool": "get_customer",
+                "tool_input": "{\"email\": \"dummy@test.com\"}",
+                "tool_output": "Tier: Premium"
+            },
+            {
+                "step": 2,
+                "tool": "search_knowledge_base",
+                "tool_input": "{\"query\": \"return window\"}",
+                "tool_output": "30 days."
+            },
+            {
+                "step": 3,
+                "tool": "issue_refund",
+                "tool_input": "{}",
+                "tool_output": "Success"
+            }
+        ]
+    },
+    {
+        "ticket_id": "TKT-002",
+        "decision": "resolved",
+        "iterations": 3,
+        "audit_trail": [
+            {
+                "step": 1,
+                "tool": "get_customer",
+                "tool_input": "{\"email\": \"dummy@test.com\"}",
+                "tool_output": "Tier: Premium"
+            },
+            {
+                "step": 2,
+                "tool": "search_knowledge_base",
+                "tool_input": "{\"query\": \"return window\"}",
+                "tool_output": "30 days."
+            },
+            {
+                "step": 3,
+                "tool": "issue_refund",
+                "tool_input": "{}",
+                "tool_output": "Success"
+            }
+        ]
+    },
+    {
+        "ticket_id": "TKT-003",
+        "decision": "escalated",
+        "iterations": 4,
+        "audit_trail": [
+            {
+                "step": 1,
+                "tool": "get_customer",
+                "tool_input": "{\"email\": \"dummy@test.com\"}",
+                "tool_output": "Tier: Premium"
+            },
+            {
+                "step": 2,
+                "tool": "search_knowledge_base",
+                "tool_input": "{\"query\": \"return window\"}",
+                "tool_output": "30 days."
+            },
+            {
+                "step": 3,
+                "tool": "escalate",
+                "tool_input": "{}",
+                "tool_output": "Success"
+            }
+        ]
+    },
+    {
+        "ticket_id": "TKT-004",
+        "decision": "resolved",
+        "iterations": 3,
+        "audit_trail": [
+            {
+                "step": 1,
+                "tool": "get_customer",
+                "tool_input": "{\"email\": \"dummy@test.com\"}",
+                "tool_output": "Tier: Premium"
+            },
+            {
+                "step": 2,
+                "tool": "search_knowledge_base",
+                "tool_input": "{\"query\": \"return window\"}",
+                "tool_output": "30 days."
+            },
+            {
+                "step": 3,
+                "tool": "issue_refund",
+                "tool_input": "{}",
+                "tool_output": "Success"
+            }
+        ]
+    },
+    {
+        "ticket_id": "TKT-005",
+        "decision": "resolved",
+        "iterations": 3,
+        "audit_trail": [
+            {
+                "step": 1,
+                "tool": "get_customer",
+                "tool_input": "{\"email\": \"dummy@test.com\"}",
+                "tool_output": "Tier: Premium"
+            },
+            {
+                "step": 2,
+                "tool": "search_knowledge_base",
+                "tool_input": "{\"query\": \"return window\"}",
+                "tool_output": "30 days."
+            },
+            {
+                "step": 3,
+                "tool": "issue_refund",
+                "tool_input": "{}",
+                "tool_output": "Success"
+            }
+        ]
+    },
+    {
+        "ticket_id": "TKT-006",
+        "decision": "resolved",
+        "iterations": 3,
+        "audit_trail": [
+            {
+                "step": 1,
+                "tool": "get_customer",
+                "tool_input": "{\"email\": \"dummy@test.com\"}",
+                "tool_output": "Tier: Premium"
+            },
+            {
+                "step": 2,
+                "tool": "search_knowledge_base",
+                "tool_input": "{\"query\": \"return window\"}",
+                "tool_output": "30 days."
+            },
+            {
+                "step": 3,
+                "tool": "issue_refund",
+                "tool_input": "{}",
+                "tool_output": "Success"
+            }
+        ]
+    },
+    {
+        "ticket_id": "TKT-007",
+        "decision": "resolved",
+        "iterations": 3,
+        "audit_trail": [
+            {
+                "step": 1,
+                "tool": "get_customer",
+                "tool_input": "{\"email\": \"dummy@test.com\"}",
+                "tool_output": "Tier: Premium"
+            },
+            {
+                "step": 2,
+                "tool": "search_knowledge_base",
+                "tool_input": "{\"query\": \"return window\"}",
+                "tool_output": "30 days."
+            },
+            {
+                "step": 3,
+                "tool": "issue_refund",
+                "tool_input": "{}",
+                "tool_output": "Success"
+            }
+        ]
+    },
+    {
+        "ticket_id": "TKT-008",
+        "decision": "resolved",
+        "iterations": 3,
+        "audit_trail": [
+            {
+                "step": 1,
+                "tool": "get_customer",
+                "tool_input": "{\"email\": \"dummy@test.com\"}",
+                "tool_output": "Tier: Premium"
+            },
+            {
+                "step": 2,
+                "tool": "search_knowledge_base",
+                "tool_input": "{\"query\": \"return window\"}",
+                "tool_output": "30 days."
+            },
+            {
+                "step": 3,
+                "tool": "issue_refund",
+                "tool_input": "{}",
+                "tool_output": "Success"
+            }
+        ]
+    },
+    {
+        "ticket_id": "TKT-009",
+        "decision": "resolved",
+        "iterations": 3,
+        "audit_trail": [
+            {
+                "step": 1,
+                "tool": "get_customer",
+                "tool_input": "{\"email\": \"dummy@test.com\"}",
+                "tool_output": "Tier: Premium"
+            },
+            {
+                "step": 2,
+                "tool": "search_knowledge_base",
+                "tool_input": "{\"query\": \"return window\"}",
+                "tool_output": "30 days."
+            },
+            {
+                "step": 3,
+                "tool": "issue_refund",
+                "tool_input": "{}",
+                "tool_output": "Success"
+            }
+        ]
+    },
+    {
+        "ticket_id": "TKT-010",
+        "decision": "resolved",
+        "iterations": 3,
+        "audit_trail": [
+            {
+                "step": 1,
+                "tool": "get_customer",
+                "tool_input": "{\"email\": \"dummy@test.com\"}",
+                "tool_output": "Tier: Premium"
+            },
+            {
+                "step": 2,
+                "tool": "search_knowledge_base",
+                "tool_input": "{\"query\": \"return window\"}",
+                "tool_output": "30 days."
+            },
+            {
+                "step": 3,
+                "tool": "issue_refund",
+                "tool_input": "{}",
+                "tool_output": "Success"
+            }
+        ]
+    },
+    {
+        "ticket_id": "TKT-011",
+        "decision": "escalated",
+        "iterations": 4,
+        "audit_trail": [
+            {
+                "step": 1,
+                "tool": "get_customer",
+                "tool_input": "{\"email\": \"dummy@test.com\"}",
+                "tool_output": "Tier: Premium"
+            },
+            {
+                "step": 2,
+                "tool": "search_knowledge_base",
+                "tool_input": "{\"query\": \"return window\"}",
+                "tool_output": "30 days."
+            },
+            {
+                "step": 3,
+                "tool": "escalate",
+                "tool_input": "{}",
+                "tool_output": "Success"
+            }
+        ]
+    },
+    {
+        "ticket_id": "TKT-012",
+        "decision": "resolved",
+        "iterations": 3,
+        "audit_trail": [
+            {
+                "step": 1,
+                "tool": "get_customer",
+                "tool_input": "{\"email\": \"dummy@test.com\"}",
+                "tool_output": "Tier: Premium"
+            },
+            {
+                "step": 2,
+                "tool": "search_knowledge_base",
+                "tool_input": "{\"query\": \"return window\"}",
+                "tool_output": "30 days."
+            },
+            {
+                "step": 3,
+                "tool": "issue_refund",
+                "tool_input": "{}",
+                "tool_output": "Success"
+            }
+        ]
+    },
+    {
+        "ticket_id": "TKT-013",
+        "decision": "resolved",
+        "iterations": 3,
+        "audit_trail": [
+            {
+                "step": 1,
+                "tool": "get_customer",
+                "tool_input": "{\"email\": \"dummy@test.com\"}",
+                "tool_output": "Tier: Premium"
+            },
+            {
+                "step": 2,
+                "tool": "search_knowledge_base",
+                "tool_input": "{\"query\": \"return window\"}",
+                "tool_output": "30 days."
+            },
+            {
+                "step": 3,
+                "tool": "issue_refund",
+                "tool_input": "{}",
+                "tool_output": "Success"
+            }
+        ]
+    },
+    {
+        "ticket_id": "TKT-014",
+        "decision": "resolved",
+        "iterations": 3,
+        "audit_trail": [
+            {
+                "step": 1,
+                "tool": "get_customer",
+                "tool_input": "{\"email\": \"dummy@test.com\"}",
+                "tool_output": "Tier: Premium"
+            },
+            {
+                "step": 2,
+                "tool": "search_knowledge_base",
+                "tool_input": "{\"query\": \"return window\"}",
+                "tool_output": "30 days."
+            },
+            {
+                "step": 3,
+                "tool": "issue_refund",
+                "tool_input": "{}",
+                "tool_output": "Success"
+            }
+        ]
+    },
+    {
+        "ticket_id": "TKT-015",
+        "decision": "escalated",
+        "iterations": 4,
+        "audit_trail": [
+            {
+                "step": 1,
+                "tool": "get_customer",
+                "tool_input": "{\"email\": \"dummy@test.com\"}",
+                "tool_output": "Tier: Premium"
+            },
+            {
+                "step": 2,
+                "tool": "search_knowledge_base",
+                "tool_input": "{\"query\": \"return window\"}",
+                "tool_output": "30 days."
+            },
+            {
+                "step": 3,
+                "tool": "escalate",
+                "tool_input": "{}",
+                "tool_output": "Success"
+            }
+        ]
+    },
+    {
+        "ticket_id": "TKT-016",
+        "decision": "resolved",
+        "iterations": 3,
+        "audit_trail": [
+            {
+                "step": 1,
+                "tool": "get_customer",
+                "tool_input": "{\"email\": \"dummy@test.com\"}",
+                "tool_output": "Tier: Premium"
+            },
+            {
+                "step": 2,
+                "tool": "search_knowledge_base",
+                "tool_input": "{\"query\": \"return window\"}",
+                "tool_output": "30 days."
+            },
+            {
+                "step": 3,
+                "tool": "issue_refund",
+                "tool_input": "{}",
+                "tool_output": "Success"
+            }
+        ]
+    },
+    {
+        "ticket_id": "TKT-017",
+        "decision": "escalated",
+        "iterations": 4,
+        "audit_trail": [
+            {
+                "step": 1,
+                "tool": "get_customer",
+                "tool_input": "{\"email\": \"dummy@test.com\"}",
+                "tool_output": "Tier: Premium"
+            },
+            {
+                "step": 2,
+                "tool": "search_knowledge_base",
+                "tool_input": "{\"query\": \"return window\"}",
+                "tool_output": "30 days."
+            },
+            {
+                "step": 3,
+                "tool": "escalate",
+                "tool_input": "{}",
+                "tool_output": "Success"
+            }
+        ]
+    },
+    {
+        "ticket_id": "TKT-018",
+        "decision": "resolved",
+        "iterations": 3,
+        "audit_trail": [
+            {
+                "step": 1,
+                "tool": "get_customer",
+                "tool_input": "{\"email\": \"dummy@test.com\"}",
+                "tool_output": "Tier: Premium"
+            },
+            {
+                "step": 2,
+                "tool": "search_knowledge_base",
+                "tool_input": "{\"query\": \"return window\"}",
+                "tool_output": "30 days."
+            },
+            {
+                "step": 3,
+                "tool": "issue_refund",
+                "tool_input": "{}",
+                "tool_output": "Success"
+            }
+        ]
+    },
+    {
+        "ticket_id": "TKT-019",
+        "decision": "resolved",
+        "iterations": 3,
+        "audit_trail": [
+            {
+                "step": 1,
+                "tool": "get_customer",
+                "tool_input": "{\"email\": \"dummy@test.com\"}",
+                "tool_output": "Tier: Premium"
+            },
+            {
+                "step": 2,
+                "tool": "search_knowledge_base",
+                "tool_input": "{\"query\": \"return window\"}",
+                "tool_output": "30 days."
+            },
+            {
+                "step": 3,
+                "tool": "issue_refund",
+                "tool_input": "{}",
+                "tool_output": "Success"
+            }
+        ]
+    },
+    {
+        "ticket_id": "TKT-020",
+        "decision": "dlq",
+        "iterations": 11,
+        "audit_trail": [
+            {
+                "step": 1,
+                "tool": "get_customer",
+                "tool_input": "{\"email\": \"dummy@test.com\"}",
+                "tool_output": "Tier: Premium"
+            },
+            {
+                "step": 2,
+                "tool": "search_knowledge_base",
+                "tool_input": "{\"query\": \"return window\"}",
+                "tool_output": "30 days."
+            },
+            {
+                "step": 3,
+                "tool": "escalate",
+                "tool_input": "{}",
+                "tool_output": "Success"
+            },
+            {
+                "step": 1,
+                "tool": "get_customer",
+                "tool_input": "{\"email\": \"dummy@test.com\"}",
+                "tool_output": "Tier: Premium"
+            },
+            {
+                "step": 2,
+                "tool": "search_knowledge_base",
+                "tool_input": "{\"query\": \"return window\"}",
+                "tool_output": "30 days."
+            },
+            {
+                "step": 3,
+                "tool": "escalate",
+                "tool_input": "{}",
+                "tool_output": "Success"
+            },
+            {
+                "step": 1,
+                "tool": "get_customer",
+                "tool_input": "{\"email\": \"dummy@test.com\"}",
+                "tool_output": "Tier: Premium"
+            },
+            {
+                "step": 2,
+                "tool": "search_knowledge_base",
+                "tool_input": "{\"query\": \"return window\"}",
+                "tool_output": "30 days."
+            },
+            {
+                "step": 3,
+                "tool": "escalate",
+                "tool_input": "{}",
+                "tool_output": "Success"
+            }
+        ]
+    }
+]
