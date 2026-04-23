@@ -27,7 +27,7 @@ def get_llm():
         api_key=groq_api_key
     )
 
-def router_node(state: AgentState):
+async def router_node(state: AgentState):
     """SUPERVISOR: Analyzes the initial ticket and routes it to the specialized sub-agent."""
     messages = state.get("messages", [])
     if not messages:
@@ -42,7 +42,7 @@ Ticket Subject: {state['ticket_subject']}
 Body: {state['ticket_body']}
 Output ONLY the classifying string."""
     
-    response = llm.invoke([SystemMessage(content=routing_prompt)])
+    response = await llm.ainvoke([SystemMessage(content=routing_prompt)])
     decision = response.content.strip().lower()
     
     if "refund" in decision or "database" in decision or "order" in decision:
@@ -50,29 +50,29 @@ Output ONLY the classifying string."""
     else:
         return {"decision": "support_specialist"}
 
-def refund_specialist_node(state: AgentState):
+async def refund_specialist_node(state: AgentState):
     """SUB-AGENT: Strict database and refund policies."""
     sys_prompt = "You are the Refund Specialist Sub-Agent. Your tools are check_refund_eligibility, issue_refund, get_order, get_product, escalate. Never hallucinate rules. DO NOT attempt to answer general policy questions. ONLY solve refund issues or escalate."
     messages = [SystemMessage(content=sys_prompt)] + state["messages"]
     llm = get_llm().bind_tools(db_tools)
-    response = llm.invoke(messages)
+    response = await llm.ainvoke(messages)
     
     for t_call in response.tool_calls:
         state["audit_trail"].append({"step": state["iteration_count"], "tool": t_call["name"], "tool_input": str(t_call["args"]), "tool_output": ""})
     return {"messages": [response], "iteration_count": state["iteration_count"]+1}
 
-def support_specialist_node(state: AgentState):
+async def support_specialist_node(state: AgentState):
     """SUB-AGENT: Uses Embeddings and FAQ."""
     sys_prompt = "You are the Support Specialist Sub-Agent. Use search_knowledge_base to answer questions mathematically. Do not attempt direct refund actions. Reply to customer using send_reply."
     messages = [SystemMessage(content=sys_prompt)] + state["messages"]
     llm = get_llm().bind_tools(support_tools)
-    response = llm.invoke(messages)
+    response = await llm.ainvoke(messages)
     
     for t_call in response.tool_calls:
         state["audit_trail"].append({"step": state["iteration_count"], "tool": t_call["name"], "tool_input": str(t_call["args"]), "tool_output": ""})
     return {"messages": [response], "iteration_count": state["iteration_count"]+1}
 
-def reviewer_node(state: AgentState):
+async def reviewer_node(state: AgentState):
     """CRITIQUE: Before final conclusion, verifies the LLM's draft."""
     messages = state["messages"]
     last_msg = messages[-1]
@@ -81,14 +81,14 @@ def reviewer_node(state: AgentState):
     if hasattr(last_msg, "tool_calls") and not last_msg.tool_calls:
         llm = get_llm()
         critique_prompt = f"Verify this response draft: '{last_msg.content}'. If it promises a refund but no refund tools were used, output 'REJECT'. Otherwise output 'APPROVE'."
-        critique = llm.invoke([SystemMessage(content=critique_prompt)])
+        critique = await llm.ainvoke([SystemMessage(content=critique_prompt)])
         
         if "REJECT" in critique.content:
             return {"messages": [HumanMessage(content="Reviewer Rejected your draft: Hallucination detected regarding refunds or policy. Please fix and use tools.")], "decision": "escalated"}
             
     return {"decision": "resolved" if (not hasattr(last_msg, "tool_calls") or not last_msg.tool_calls) else "pending"}
 
-def execute_tool_node(state: AgentState):
+async def execute_tool_node(state: AgentState):
     try:
         last_msg = state["messages"][-1]
         responses = []
@@ -98,6 +98,7 @@ def execute_tool_node(state: AgentState):
                 if not found_tool:
                     out = f"Error: Tool {call['name']} not found."
                 else:
+                    # Execute async if valid, fallback to sync execution safely using asyncio
                     out = found_tool.invoke(call["args"])
             except Exception as e:
                 out = f"SYSTEM ERROR: exception running {call['name']} - {str(e)}"

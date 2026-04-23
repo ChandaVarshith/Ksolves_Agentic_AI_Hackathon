@@ -12,7 +12,9 @@ from agent.graph import agent_app
 
 colorama.init(autoreset=True)
 
-async def process_ticket(ticket: dict, sem: asyncio.Semaphore):
+async def process_ticket(ticket: dict, sem: asyncio.Semaphore, delay: float):
+    # Startup Jitter: Spreads out the initial launch to prevent "Rate limit burst!" all at once.
+    await asyncio.sleep(delay)
     async with sem:
         print(f"[{ticket['ticket_id']}] {Fore.CYAN}Starting processing...{Style.RESET_ALL}")
         
@@ -100,8 +102,8 @@ async def main():
     # This maintains concurrency (running 3 tickets simultaneously) while respecting the 12K TPM limit
     sem = asyncio.Semaphore(3)
     
-    # Run all tickets concurrently via asyncio.gather
-    tasks = [process_ticket(tkt, sem) for tkt in db.tickets]
+    # Add startup jitter to prevent the 3 tickets from connecting at the exact identical split-second
+    tasks = [process_ticket(tkt, sem, delay=i * 2.0) for i, tkt in enumerate(db.tickets)]
     results = await asyncio.gather(*tasks)
     
     # Save the output to audit_log.json
