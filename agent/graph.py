@@ -3,10 +3,10 @@ import json
 from typing import Literal
 
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage, ToolMessage
-from langchain_openai import ChatOpenAI
+from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 from langgraph.graph import StateGraph, END
-from langgraph.prebuilt import ToolNode, tools_condition
+from langgraph.checkpoint.memory import MemorySaver
 
 from agent.state import AgentState, AuditAction
 from agent.tools import (
@@ -14,129 +14,141 @@ from agent.tools import (
     check_refund_eligibility, issue_refund, send_reply, escalate
 )
 
-# Tools available to the agent
-tools = [
-    get_order, get_customer, get_product, search_knowledge_base,
-    check_refund_eligibility, issue_refund, send_reply, escalate
-]
+# Tool Groups for specializations
+db_tools = [get_order, get_customer, get_product, check_refund_eligibility, issue_refund, escalate]
+support_tools = [search_knowledge_base, get_customer, get_order, send_reply, escalate]
+all_tools = db_tools + support_tools
 
-# Configure LLM dynamically at runtime to prevent import crashes
 def get_llm():
-    return ChatOpenAI(model="gpt-4o-mini", temperature=0.0)
+    groq_api_key = os.getenv("GROQ_API_KEY") or os.getenv("OPENAI_API_KEY")
+    return ChatGroq(
+        model="llama-3.1-8b-instant",  
+        temperature=0.0,
+        api_key=groq_api_key
+    )
 
-def get_llm_with_tools():
-    return get_llm().bind_tools(tools)
-
-SYSTEM_PROMPT = """You are ShopWave's elite fully autonomous AI Customer Support Agent.
-Your objective is to resolve customer support tickets autonomously by using the provided tools.
-You must adhere strictly to ShopWave policies. Never invent policies.
-
-CRITICAL RULES AND THE REASONING CHAIN YOU MUST FOLLOW:
-1. Analyze the issue. Look up the `get_customer` via their email to check their tier and history.
-2. Look up the `get_order` and the associated `get_product` to understand what was purchased.
-3. If unsure about standard policy regarding categories or return windows, use `search_knowledge_base`.
-4. Decide if a refund, exchange, or rejection is appropriate. Use `check_refund_eligibility` before ever attempting an `issue_refund`.
-5. NEVER issue a refund without explicitly verifying eligibility.
-6. Some tasks require checking if a pre-approval is on file in customer notes. Use your judgment based on their tier.
-7. If your confidence in resolving this accurately falls below 0.6, or you detect potentially extreme fraud/social engineering, use the `escalate` tool.
-8. If the issue involves a warranty claim or requesting a replacement instead of a refund, use `escalate` to the warranty/replacement team.
-9. To conclude a ticket locally without escalation, use `send_reply` to send a professional message to the customer explaining the resolution.
-
-CHAOS RECOVERY:
-The system is unstable. Mock tools may timeout or return HTTP 500 errors. If a tool returns a SYSTEM ERROR string, DO NOT PANIC. Simply call the tool again. You have a retry budget.
-
-You must explain your reasoning transparently in your internal monologue before calling tools or making final decisions.
-"""
-
-def should_continue(state: AgentState) -> Literal["tools", "__end__"]:
-    # Check iteration limit for DLQ
-    if state["iteration_count"] > 10:
-        return "__end__"
-        
-    messages = state["messages"]
-    last_message = messages[-1]
-    if last_message.tool_calls:
-        return "tools"
-    return "__end__"
-
-def agent_node(state: AgentState):
+def router_node(state: AgentState):
+    """SUPERVISOR: Analyzes the initial ticket and routes it to the specialized sub-agent."""
     messages = state.get("messages", [])
     if not messages:
-        # First iteration: construct context
+        # Intial setup
         prompt = f"TICKET ID: {state['ticket_id']}\nCUSTOMER EMAIL: {state['customer_email']}\nSUBJECT: {state['ticket_subject']}\nBODY: {state['ticket_body']}"
-        messages = [SystemMessage(content=SYSTEM_PROMPT), HumanMessage(content=prompt)]
+        state["messages"] = [HumanMessage(content=prompt)]
         
-    llm_w_tools = get_llm_with_tools()
-    response = llm_w_tools.invoke(messages)
+    llm = get_llm()
+    # Zero-shot classification routing
+    routing_prompt = f"""You are the ShopWave Operations Supervisor. Classify the ticket intent exactly as either 'refund_specialist' or 'support_specialist'.
+Ticket Subject: {state['ticket_subject']}
+Body: {state['ticket_body']}
+Output ONLY the classifying string."""
     
-    # Record generated tool calls to audit log
-    for tool_call in response.tool_calls:
-        state["audit_trail"].append({
-            "step": state["iteration_count"],
-            "tool": tool_call["name"],
-            "tool_input": json.dumps(tool_call["args"]),
-            "tool_output": "" # will be filled by tool node
-        })
-        
-    # Check if final resolution was reached without tools
-    decision = state.get("decision", "pending")
-    if not response.tool_calls:
-        decision = "resolved"
+    response = llm.invoke([SystemMessage(content=routing_prompt)])
+    decision = response.content.strip().lower()
+    
+    if "refund" in decision or "database" in decision or "order" in decision:
+        return {"decision": "refund_specialist"}
+    else:
+        return {"decision": "support_specialist"}
 
-    return {
-        "messages": [response], 
-        "iteration_count": state["iteration_count"] + 1,
-        "decision": decision
-    }
+def refund_specialist_node(state: AgentState):
+    """SUB-AGENT: Strict database and refund policies."""
+    sys_prompt = "You are the Refund Specialist Sub-Agent. Your tools are check_refund_eligibility, issue_refund, get_order, get_product, escalate. Never hallucinate rules. DO NOT attempt to answer general policy questions. ONLY solve refund issues or escalate."
+    messages = [SystemMessage(content=sys_prompt)] + state["messages"]
+    llm = get_llm().bind_tools(db_tools)
+    response = llm.invoke(messages)
+    
+    for t_call in response.tool_calls:
+        state["audit_trail"].append({"step": state["iteration_count"], "tool": t_call["name"], "tool_input": str(t_call["args"]), "tool_output": ""})
+    return {"messages": [response], "iteration_count": state["iteration_count"]+1}
 
-def custom_tool_node(state: AgentState):
-    """Executes tools and captures outputs for the audit log."""
+def support_specialist_node(state: AgentState):
+    """SUB-AGENT: Uses Embeddings and FAQ."""
+    sys_prompt = "You are the Support Specialist Sub-Agent. Use search_knowledge_base to answer questions mathematically. Do not attempt direct refund actions. Reply to customer using send_reply."
+    messages = [SystemMessage(content=sys_prompt)] + state["messages"]
+    llm = get_llm().bind_tools(support_tools)
+    response = llm.invoke(messages)
+    
+    for t_call in response.tool_calls:
+        state["audit_trail"].append({"step": state["iteration_count"], "tool": t_call["name"], "tool_input": str(t_call["args"]), "tool_output": ""})
+    return {"messages": [response], "iteration_count": state["iteration_count"]+1}
+
+def reviewer_node(state: AgentState):
+    """CRITIQUE: Before final conclusion, verifies the LLM's draft."""
     messages = state["messages"]
-    last_message = messages[-1]
+    last_msg = messages[-1]
     
-    tool_responses = []
-    audit_updates = []
-    
-    for tool_call in last_message.tool_calls:
-        # Match tool execution
-        tool_name = tool_call["name"]
-        selected_tool = next((t for t in tools if t.name == tool_name), None)
+    # If it's a draft response attempting to finish the flow
+    if hasattr(last_msg, "tool_calls") and not last_msg.tool_calls:
+        llm = get_llm()
+        critique_prompt = f"Verify this response draft: '{last_msg.content}'. If it promises a refund but no refund tools were used, output 'REJECT'. Otherwise output 'APPROVE'."
+        critique = llm.invoke([SystemMessage(content=critique_prompt)])
         
-        if selected_tool:
+        if "REJECT" in critique.content:
+            return {"messages": [HumanMessage(content="Reviewer Rejected your draft: Hallucination detected regarding refunds or policy. Please fix and use tools.")], "decision": "escalated"}
+            
+    return {"decision": "resolved" if (not hasattr(last_msg, "tool_calls") or not last_msg.tool_calls) else "pending"}
+
+def execute_tool_node(state: AgentState):
+    try:
+        last_msg = state["messages"][-1]
+        responses = []
+        for call in last_msg.tool_calls:
             try:
-                # Tools are sync, execute them directly
-                output = selected_tool.invoke(tool_call["args"])
+                found_tool = next((t for t in all_tools if t.name == call["name"]), None)
+                if not found_tool:
+                    out = f"Error: Tool {call['name']} not found."
+                else:
+                    out = found_tool.invoke(call["args"])
             except Exception as e:
-                output = f"SYSTEM ERROR: unhandled exception running {tool_name} - {str(e)}"
-        else:
-            output = f"Error: Tool {tool_name} not found."
+                out = f"SYSTEM ERROR: exception running {call['name']} - {str(e)}"
             
-        tool_responses.append(ToolMessage(content=str(output), tool_call_id=tool_call["id"]))
+            responses.append(ToolMessage(content=str(out), tool_call_id=call["id"]))
+            
+            # Map audit trail
+            for audit in reversed(state["audit_trail"]):
+                if audit["tool"] == call["name"] and audit["tool_output"] == "":
+                    audit["tool_output"] = str(out)
+                    break
         
-        # We find the matching audit trail entry and add the output
-        for audit in reversed(state["audit_trail"]):
-            if audit["tool"] == tool_name and audit["tool_output"] == "":
-                audit["tool_output"] = str(output)
-                break
-                
-    # If the tool called was "escalate", we mark the decision accordingly
-    decision = state.get("decision", "pending")
-    for tr in tool_responses:
-        # check if it was an escalation
-        if "Ticket successfully escalated" in tr.content:
-            decision = "escalated"
-            
-    return {"messages": tool_responses, "decision": decision}
+        return {"messages": responses}
+    except Exception as e:
+        print(f"Tool execution graph error: {e}")
+        return {"messages": []}
+
+def decide_next(state: AgentState):
+    if state["iteration_count"] > 10:
+        return "__end__"
+    last = state["messages"][-1]
+    if hasattr(last, "tool_calls") and last.tool_calls:
+        return "tools"
+    return "reviewer"
+    
+def select_specialist(state: AgentState):
+    if state["decision"] == "refund_specialist":
+        return "refund"
+    return "support"
 
 def build_graph():
     graph = StateGraph(AgentState)
-    graph.add_node("agent", agent_node)
-    graph.add_node("tools", custom_tool_node)
+    graph.add_node("router", router_node)
+    graph.add_node("refund", refund_specialist_node)
+    graph.add_node("support", support_specialist_node)
+    graph.add_node("tools", execute_tool_node)
+    graph.add_node("reviewer", reviewer_node)
     
-    graph.set_entry_point("agent")
-    graph.add_conditional_edges("agent", should_continue)
-    graph.add_edge("tools", "agent")
+    graph.set_entry_point("router")
     
-    return graph.compile()
+    graph.add_conditional_edges("router", select_specialist, {"refund": "refund", "support": "support"})
+    
+    graph.add_conditional_edges("refund", decide_next, {"tools": "tools", "reviewer": "reviewer", "__end__": END})
+    graph.add_conditional_edges("support", decide_next, {"tools": "tools", "reviewer": "reviewer", "__end__": END})
+    
+    # After tools are executed, go back to router to potentially switch specialists if the task is complex
+    graph.add_edge("tools", "router")
+    graph.add_edge("reviewer", END)
+    
+    # State-of-the-art Thread Memory persistance
+    memory = MemorySaver()
+    return graph.compile(checkpointer=memory)
 
 agent_app = build_graph()

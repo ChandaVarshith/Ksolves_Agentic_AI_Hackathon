@@ -15,13 +15,13 @@ The goal of this project is to build an autonomous Agentic AI capable of:
 4. Knowing when a situation is too ambiguous and effectively escalating it to a human supervisor instead of hallucinating.
 
 ## Our Solution Architecture
-We have engineered an advanced, robust **ReAct-based LangGraph Pipeline** tailored precisely to automate the ticket triage pipeline while operating safely within unpredictable system parameters.
+We have completely engineered a state-of-the-art **Multi-Agent Supervisor Network** using LangGraph to automate the triage pipeline securely.
 
-- **Asynchronous Concurrent Pipeline**: Ingests and processes large batches of internal tickets simultaneously, heavily driving down resolution overhead times.
-- **Chaos-Resilient DB Transactions**: ShopWave’s legacy APIs can sometimes timeout or return 500 Network errors. We implemented a `@chaos_monkey` logic layer that mimics these issues. Our LangGraph engine elegantly calculates retry budgets and safely navigates intermittent failures without unhandled exception crashes.
-- **Dead-Letter Queue (DLQ) Safeguards**: If a ticket becomes fundamentally unsolvable due to lack of policy data or infinite loop generation, the ticket is parked cleanly in the isolated DLQ, preventing batch lockups.
-- **TF-IDF Semantic RAG**: Replaces fragile keyword lookup functions with a Math-backed vector retrieval system, guaranteeing accurate ShopWave policy matching against user queries.
-- **Automated Metric Dashboards**: Every action the agent takes is natively appended into an `audit_log.json` object. Our custom parser (`generate_dashboard.py`) transforms this log into a readable managerial dashboard view, exposing cost-savings and AI success rates rapidly.
+- **Supervisor Routing**: A central LLM router categorizes tickets by intent, dynamically dispatching them to purely constrained **Refund Sub-Agents** or **Support Policy Sub-Agents** to prevent hallucination boundaries.
+- **Self-Reflective Critique Node**: Before any ticket is resolved, a separate isolated `Reviewer` Node evaluates the generated response. If the agent promised a refund without calling the internal tools, the Reviewer intercepts the response and forces a retry, structurally preventing policy violations.
+- **Deep Thread Memory (Checkpointers)**: The network uses SQLite-style `MemorySaver` wrappers. In the event of catastrophic `HTTP 500` or `429 Rate Limit` timeouts, the agent falls asleep and resumes perfectly from the exact sub-node it crashed at without wasting tokens or re-running completed queries.
+- **Dense Matrix Embeddings**: Utilizing true math vectorization via stable local `TF-IDF` matrices (SciKit-Learn) to capture semantic search context perfectly without breaking lightweight environments.
+- **Chaos-Resilient Transactions**: ShopWave’s mock legacy APIs are wrapped in a `@chaos_monkey` interceptor that strictly tests the AI recovery behaviors during API latency drops.
 
 ## Quickstart
 

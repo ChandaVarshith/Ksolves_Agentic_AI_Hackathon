@@ -40,7 +40,6 @@ class KnowledgeBaseSearcher:
         if os.path.exists(kb_path):
             with open(kb_path, "r", encoding="utf-8") as f:
                 content = f.read()
-            # Split by headings
             raw_sections = re.split(r'\n(?=\d+\.\s)', content)
             self.sections = [s.strip() for s in raw_sections if s.strip()]
         

@@ -33,7 +33,12 @@ async def process_ticket(ticket: dict, sem: asyncio.Semaphore):
         max_retries = 15
         for attempt in range(max_retries):
             try:
-                final_state = await agent_app.ainvoke(state)
+                # Provide a persistent thread ID for the MemorySaver Checkpointer
+                config = {"configurable": {"thread_id": ticket["ticket_id"]}}
+                
+                # If attempt > 0, we are resuming from a crash. Pass None so Checkpointer loads history.
+                input_state = state if attempt == 0 else None
+                final_state = await agent_app.ainvoke(input_state, config=config)
                 
                 # Check if it hit the dead-letter queue (DLQ) condition
                 decision = final_state.get("decision")
